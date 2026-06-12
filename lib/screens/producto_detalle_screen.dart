@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/producto.dart';
 
-class ProductoDetalleScreen extends StatelessWidget {
+class ProductoDetalleScreen extends StatefulWidget {
   final Producto producto;
 
   const ProductoDetalleScreen({
     super.key,
     required this.producto,
   });
+
+  @override
+  State<ProductoDetalleScreen> createState() => _ProductoDetalleScreenState();
+}
+
+class _ProductoDetalleScreenState extends State<ProductoDetalleScreen> {
+  bool _esFavorito = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +33,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                     height: double.infinity,
                     color: Colors.grey[200],
                     child: Icon(
-                      _getIcono(producto.imagenUrl),
+                      _getIcono(widget.producto.imagenUrl),
                       size: 120,
                       color: Colors.grey[400],
                     ),
@@ -71,8 +78,17 @@ class ProductoDetalleScreen extends StatelessWidget {
                     right: 0,
                     child: SafeArea(
                       child: IconButton(
-                        icon: const Icon(Icons.favorite_border),
-                        onPressed: () {},
+                        icon: Icon(
+                          _esFavorito
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: _esFavorito ? Colors.red : null,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _esFavorito = !_esFavorito;
+                          });
+                        },
                       ),
                     ),
                   ),
@@ -101,7 +117,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Nombre
                   Text(
-                    producto.nombre,
+                    widget.producto.nombre,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
@@ -110,7 +126,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   // Precio
                   Text(
-                    '\$${producto.precio.toStringAsFixed(2)}',
+                    '\$${widget.producto.precio.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 28,
@@ -120,7 +136,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   // Descripción
                   Text(
-                    producto.descripcion,
+                    widget.producto.descripcion,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 16,

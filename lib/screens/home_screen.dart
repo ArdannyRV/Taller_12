@@ -12,6 +12,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _indiceNavegacion = 0;
+  String categoriaSeleccionada = 'Todas';
+
+  final List<String> _categorias = ['Todas', 'Electrónica', 'Fotografía', 'Accesorios'];
 
   @override
   Widget build(BuildContext context) {
@@ -86,30 +89,62 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildContenidoPrincipal() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Encabezado
-          _buildEncabezado(),
-          const SizedBox(height: 20),
-          // Categorías (scroll horizontal)
-          _buildCategorias(),
-          const SizedBox(height: 20),
-          // Título de sección
-          const Text(
-            'Productos Destacados',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 900) {
+          return Row(
+            children: [
+              SizedBox(
+                width: 250,
+                child: _buildSidebar(),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildEncabezado(),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Productos Destacados',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGridProductos(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildEncabezado(),
+              const SizedBox(height: 20),
+              _buildCategorias(),
+              const SizedBox(height: 20),
+              const Text(
+                'Productos Destacados',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildGridProductos(),
+            ],
           ),
-          const SizedBox(height: 16),
-          // Grid de productos (RESPONSIVO)
-          _buildGridProductos(),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -229,20 +264,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategorias() {
-    final categorias = ['Todos', 'Electrónica', 'Fotografía', 'Accesorios'];
-    
     return SizedBox(
       height: 40,
-      // ROW con scroll horizontal
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: categorias.length,
+        itemCount: _categorias.length,
         itemBuilder: (context, index) {
-          final esSeleccionado = index == 0;
+          final esSeleccionado = _categorias[index] == categoriaSeleccionada;
           return Container(
             margin: const EdgeInsets.only(right: 12),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  categoriaSeleccionada = _categorias[index];
+                });
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: esSeleccionado ? Colors.blue : Colors.white,
                 foregroundColor: esSeleccionado ? Colors.white : Colors.black,
@@ -254,10 +290,52 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              child: Text(categorias[index]),
+              child: Text(_categorias[index]),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSidebar() {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 24, 16, 16),
+            child: Text(
+              'Categorías',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _categorias.length,
+              itemBuilder: (context, index) {
+                final esSeleccionado =
+                    _categorias[index] == categoriaSeleccionada;
+                return ListTile(
+                  selected: esSeleccionado,
+                  selectedTileColor: Colors.blue[50],
+                  selectedColor: Colors.blue,
+                  title: Text(_categorias[index]),
+                  onTap: () {
+                    setState(() {
+                      categoriaSeleccionada = _categorias[index];
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -288,6 +366,12 @@ class _HomeScreenState extends State<HomeScreen> {
           childAspectRatio = 0.65;
         }
 
+        final productosFiltrados = categoriaSeleccionada.toLowerCase() == 'todas'
+            ? productosEjemplo
+            : productosEjemplo
+                .where((p) => p.categoria == categoriaSeleccionada)
+                .toList();
+
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -297,9 +381,9 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSpacing: 16,
             childAspectRatio: childAspectRatio,
           ),
-          itemCount: productosEjemplo.length,
+          itemCount: productosFiltrados.length,
           itemBuilder: (context, index) {
-            return ProductoCard(producto: productosEjemplo[index]);
+            return ProductoCard(producto: productosFiltrados[index]);
           },
         );
       },
