@@ -263,6 +263,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  IconData _getIconoPorCategoria(String categoria) {
+    switch (categoria) {
+      case 'Todas':
+        return Icons.category;
+      case 'Electrónica':
+        return Icons.computer;
+      case 'Fotografía':
+        return Icons.camera_alt;
+      case 'Accesorios':
+        return Icons.devices_other;
+      default:
+        return Icons.label;
+    }
+  }
+
   Widget _buildCategorias() {
     return SizedBox(
       height: 40,
@@ -290,7 +305,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              child: Text(_categorias[index]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _getIconoPorCategoria(_categorias[index]),
+                    color: Colors.grey,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(_categorias[index]),
+                ],
+              ),
             ),
           );
         },
@@ -325,6 +351,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   selected: esSeleccionado,
                   selectedTileColor: Colors.blue[50],
                   selectedColor: Colors.blue,
+                  leading: Icon(
+                    _getIconoPorCategoria(_categorias[index]),
+                    color: esSeleccionado ? Colors.blue : Colors.grey,
+                  ),
                   title: Text(_categorias[index]),
                   onTap: () {
                     setState(() {
