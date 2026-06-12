@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/producto.dart';
+import '../screens/producto_detalle_screen.dart';
 
 class ProductoCard extends StatelessWidget {
   final Producto producto;
@@ -11,7 +12,16 @@ class ProductoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductoDetalleScreen(producto: producto),
+          ),
+        );
+      },
+      child: Container(
       // CONTAINER: Widget para decoración y dimensiones
       decoration: BoxDecoration(
         color: Colors.white,
@@ -130,6 +140,7 @@ class ProductoCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
